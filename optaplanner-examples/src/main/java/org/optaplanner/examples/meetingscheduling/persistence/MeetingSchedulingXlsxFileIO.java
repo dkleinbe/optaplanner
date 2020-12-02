@@ -189,6 +189,7 @@ public class MeetingSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<Meet
             readHeaderCell("Day");
             readHeaderCell("Starting time");
             readHeaderCell("Room");
+            readHeaderCell("Pinned by user");
 
             List<Meeting> meetingList = new ArrayList<>(currentSheet.getLastRowNum() - 1);
             List<MeetingAssignment> meetingAssignmentList = new ArrayList<>(currentSheet.getLastRowNum() - 1);
@@ -237,6 +238,7 @@ public class MeetingSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<Meet
                 }
                 meetingAssignment.setStartingTimeGrain(extractTimeGrain(meeting, timeGrainMap));
                 meetingAssignment.setRoom(extractRoom(meeting, roomMap));
+                meetingAssignment.setPinned(nextBooleanCell().getBooleanCellValue());
                 meetingList.add(meeting);
                 meetingAssignment.setMeeting(meeting);
                 meetingAssignmentList.add(meetingAssignment);
@@ -589,6 +591,7 @@ public class MeetingSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<Meet
             nextHeaderCell("Day");
             nextHeaderCell("Starting time");
             nextHeaderCell("Room");
+            nextHeaderCell("Pinned by user");
             Map<Meeting, List<MeetingAssignment>> meetingAssignmentMap = solution.getMeetingAssignmentList().stream()
                     .collect(groupingBy(MeetingAssignment::getMeeting, toList()));
             for (Meeting meeting : solution.getMeetingList()) {
@@ -620,6 +623,7 @@ public class MeetingSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<Meet
                 nextCell().setCellValue(startingTimeGrain == null ? "" : DAY_FORMATTER.format(startingTimeGrain.getDate()));
                 nextCell().setCellValue(startingTimeGrain == null ? "" : TIME_FORMATTER.format(startingTimeGrain.getTime()));
                 nextCell().setCellValue(meetingAssignment.getRoom() == null ? "" : meetingAssignment.getRoom().getName());
+                nextCell(meetingAssignment.isPinned() ? pinnedStyle : defaultStyle).setCellValue(meetingAssignment.isPinned());
             }
             setSizeColumnsWithHeader(5000);
         }
