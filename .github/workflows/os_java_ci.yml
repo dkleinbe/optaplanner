@@ -3,6 +3,9 @@
 name: OptaPlanner CI
 
 on:
+  workflow_dispatch:
+    branches:
+      - master
   push:
     branches:
       - master
