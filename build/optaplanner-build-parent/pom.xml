@@ -351,7 +351,7 @@
         <version>${version.org.springframework.boot}</version>
       </dependency>
 
-      <!-- TODO Dependencies that must use a jakarta.* groupId instead in 8 -->
+      <!-- TODO Dependencies that must use a jakarta.* groupId instead in 8 https://issues.redhat.com/browse/PLANNER-2262 -->
       <dependency>
         <groupId>javax.persistence</groupId>
         <artifactId>javax.persistence-api</artifactId>
@@ -374,7 +374,7 @@
         <version>1.1.1.Final</version>
       </dependency>
 
-      <!-- TODO Dependencies that should maybe be removed/replaced in 8 -->
+      <!-- TODO Dependencies that should maybe be removed/replaced in 8 https://issues.redhat.com/browse/PLANNER-2262 -->
       <dependency>
         <groupId>org.eclipse.persistence</groupId>
         <artifactId>org.eclipse.persistence.moxy</artifactId>
@@ -411,11 +411,6 @@
               <version>6.2.1</version>
             </dependency>
             <dependency>
-              <groupId>de.is24.maven.enforcer.rules</groupId>
-              <artifactId>illegal-transitive-dependency-check</artifactId>
-              <version>1.7.4</version>
-            </dependency>
-            <dependency>
               <groupId>com.redhat.victims</groupId>
               <artifactId>enforce-victims-rule</artifactId>
               <version>1.3.4</version>
@@ -433,19 +428,12 @@
           </dependencies>
           <executions>
             <execution>
-              <id>enforce-plugin-versions</id>
+              <id>enforce-no-logback-test-in-main</id>
               <goals>
                 <goal>enforce</goal>
               </goals>
               <configuration>
                 <rules>
-                  <!-- TODO Disabled during kie-parent 7 removal due to false negatives -->
-                  <!--                  <requirePluginVersions>-->
-                  <!--                    <message>One or more plugins do not have valid version! The version needs to be-->
-                  <!--                      explicitly specified, can not be a -SNAPSHOT version and can not be one of-->
-                  <!--                      the special (and buggy) Maven versions (LATEST, RELEASE).-->
-                  <!--                    </message>-->
-                  <!--                  </requirePluginVersions>-->
                   <requireFilesDontExist>
                     <files>
                       <file>${project.basedir}/src/main/resources/logback-test.xml</file>
@@ -460,7 +448,6 @@
               <goals>
                 <goal>enforce</goal>
               </goals>
-              <phase>initialize</phase>
               <configuration>
                 <rules>
                   <requireManagedDeps
@@ -472,33 +459,7 @@
               </configuration>
             </execution>
             <execution>
-              <id>enforce-direct-dependencies</id>
-              <goals>
-                <goal>enforce</goal>
-              </goals>
-              <phase>none</phase>
-              <configuration>
-                <rules>
-                  <illegalTransitiveDependencyCheck
-                      implementation="de.is24.maven.enforcer.rules.IllegalTransitiveDependencyCheck">
-                    <reportOnly>false</reportOnly>
-                    <regexIgnoredClasses combine.children="append">
-                      <!-- The maven-shade-plugin needs these classes to be compile-scope in guvnor-ala-openshift-client to be picked up, and
-                           then referenced in guvnor-ala-openshift-provider. When we don't need to shade anymore, we can remove these lines. -->
-                      <regexIgnoredClass>io\.fabric8\.kubernetes.*</regexIgnoredClass>
-                      <regexIgnoredClass>io\.fabric8\.openshift.*</regexIgnoredClass>
-                      <regexIgnoredClass>com\.sun\.net\.httpserver\..+</regexIgnoredClass>
-                      <regexIgnoredClass>javax\..+</regexIgnoredClass>
-                      <regexIgnoredClass>org\.w3c\.dom\..+</regexIgnoredClass>
-                      <regexIgnoredClass>org\.xml\.sax\..+</regexIgnoredClass>
-                    </regexIgnoredClasses>
-                  </illegalTransitiveDependencyCheck>
-                </rules>
-              </configuration>
-            </execution>
-            <execution>
               <id>ban-blacklisted-dependencies</id>
-              <phase>validate</phase>
               <goals>
                 <goal>enforce</goal>
               </goals>
@@ -514,10 +475,6 @@
                       <!-- In case of transitive dependency, exclude it and use 'org.javassist:javassist' instead -->
                       <exclude>javassist:javassist</exclude>
                       <exclude>org.apache.cxf:cxf-bundle-jaxrs</exclude>
-                      <exclude>org.jboss.weld.se:weld-se
-                      </exclude><!-- Use weld-se-core instead -->
-                      <exclude>org.jboss.weld.servlet:weld-servlet
-                      </exclude><!-- Use weld-servlet-core instead -->
                       <exclude>org.mockito:mockito-all</exclude><!-- Use mockito-core instead -->
                     </excludes>
                   </bannedDependencies>
@@ -527,8 +484,7 @@
             </execution>
             <execution>
               <id>ban-duplicated-classes</id>
-              <!-- Using phase=none as we don't want this execution as part of the default build. The phase
-                   is specified in the "full" profile and thus the execution will only be activated when using that profile. -->
+              <!-- Currently disabled as it fails the build. See https://issues.redhat.com/browse/PLANNER-2261. -->
               <phase>none</phase>
               <goals>
                 <goal>enforce</goal>
@@ -611,54 +567,6 @@
                           <ignoreClass>*</ignoreClass>
                         </ignoreClasses>
                       </dependency>
-                      <dependency>
-                        <groupId>org.elasticsearch</groupId>
-                        <artifactId>elasticsearch</artifactId>
-                        <ignoreClasses>
-                          <!-- Elasticsearch team claims they fixed performance issues in the class and re-bundled it.
-                               See https://discuss.elastic.co/t/an-unshaded-joda-time-classes-in-elasticsearch-2-1-1-jar/38943
-                               Nothing we can do here. -->
-                          <ignoreClass>org.joda.time.base.BaseDateTime</ignoreClass>
-                        </ignoreClasses>
-                      </dependency>
-                      <!-- ignore jboss-logging included in kie server router as it is required by undertow and uberjar usage-->
-                      <dependency>
-                        <groupId>org.kie.server</groupId>
-                        <artifactId>kie-server-router-proxy</artifactId>
-                        <type>jar</type>
-                        <ignoreClasses>
-                          <ignoreClass>org.jboss.logging.*</ignoreClass>
-                          <ignoreClass>io.undertow.*</ignoreClass>
-                          <ignoreClass>org.json.*</ignoreClass>
-                          <ignoreClass>org.jboss.threads.*</ignoreClass>
-                          <ignoreClass>org.xnio.*</ignoreClass>
-                          <ignoreClass>org.wildfly.*</ignoreClass>
-                          <ignoreClass>org.apache.commons.*</ignoreClass>
-                        </ignoreClasses>
-                      </dependency>
-                      <dependency>
-                        <groupId>org.wildfly.security</groupId>
-                        <artifactId>wildfly-elytron</artifactId>
-                        <type>jar</type>
-                        <ignoreClasses>
-                          <ignoreClass>*</ignoreClass>
-                        </ignoreClasses>
-                      </dependency>
-                      <dependency>
-                        <!-- The openshift-client duplicates these classes from the kubernetes-client.
-                             It is an upstream io.fabric8 issue that needs to be fixed there:
-                             https://github.com/fabric8io/kubernetes-client/issues/828 -->
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>openshift-client</artifactId>
-                        <type>jar</type>
-                        <ignoreClasses>
-                          <ignoreClass>io.fabric8.kubernetes.client.ConfigFluent</ignoreClass>
-                          <ignoreClass>io.fabric8.kubernetes.client.ConfigBuilder
-                          </ignoreClass>
-                          <ignoreClass>io.fabric8.kubernetes.client.ConfigFluentImpl
-                          </ignoreClass>
-                        </ignoreClasses>
-                      </dependency>
                     </dependencies>
                     <findAllDuplicates>true</findAllDuplicates>
                   </banDuplicateClasses>
@@ -708,31 +616,14 @@
                 </roots>
               </configurationFile>
             </analysisConfigurationFiles>
-            <!-- By default, revapi will only fail the build if there are potentially breaking or breaking changes. However, in the report
-                 we want even non breaking changes to be present. -->
-            <reportSeverity>nonBreaking</reportSeverity>
             <failSeverity>potentiallyBreaking</failSeverity>
           </configuration>
-          <!-- Running two executions is a workaround to make sure we get a HTML report in case revapi finds
-               some incompatible changes. The "check" goal will simply fail the whole build before it could get
-               to the report. To make sure we always get a HTML report, the "report" goal needs to be executed
-               before the "check" goal.
-               Once https://github.com/revapi/revapi/issues/11 is fixed it should be possible to use single execution. -->
           <executions>
             <execution>
               <id>check</id>
               <goals>
                 <goal>check</goal>
               </goals>
-              <phase>verify</phase>
-            </execution>
-            <execution>
-              <!-- report can be found in ${build.directory}/site/revapi-report.html -->
-              <id>report</id>
-              <goals>
-                <goal>report</goal>
-              </goals>
-              <phase>package</phase>
             </execution>
           </executions>
         </plugin>
@@ -955,81 +846,8 @@
         <groupId>net.revelc.code</groupId>
         <artifactId>impsort-maven-plugin</artifactId>
       </plugin>
-      <plugin> <!-- Make sure the build fails-fast on Javadoc issues. -->
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>javadoc-javadoc</id>
-            <phase>package</phase>
-            <goals>
-              <goal>javadoc</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>analyze-only</id>
-            <goals>
-              <goal>analyze-only</goal>
-            </goals>
-            <configuration>
-              <failOnWarning>true</failOnWarning>
-              <ignoreNonCompile>true</ignoreNonCompile>
-              <verbose>true</verbose>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <!--        <executions>-->
-        <!--          <execution>-->
-        <!--            <id>ban-duplicated-classes</id>-->
-        <!--            <goals>-->
-        <!--              <goal>enforce</goal>-->
-        <!--            </goals>-->
-        <!--            <configuration>-->
-        <!--              <rules>-->
-        <!--                <banDuplicateClasses>-->
-        <!--                  <dependencies combine.children="append">-->
-        <!--                    &lt;!&ndash; sundr-codegen is required to compile test classes. &ndash;&gt;-->
-        <!--                    <dependency>-->
-        <!--                      <groupId>io.sundr</groupId>-->
-        <!--                      <artifactId>sundr-codegen</artifactId>-->
-        <!--                      <ignoreClasses>-->
-        <!--                        <ignoreClass>*</ignoreClass>-->
-        <!--                      </ignoreClasses>-->
-        <!--                    </dependency>-->
-        <!--                  </dependencies>-->
-        <!--                </banDuplicateClasses>-->
-        <!--              </rules>-->
-        <!--            </configuration>-->
-        <!--          </execution>-->
-        <!--        </executions>-->
-      </plugin>
-      <plugin>
-        <!-- Entry needed to provide parsed version properties -->
-        <!-- also adds generated sources to -source artifact -->
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-source</goal>
-              <goal>parse-version</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>target/generated-sources/annotations/</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -1133,49 +951,6 @@
       </build>
     </profile>
     <profile>
-      <id>generate-revapi-report</id>
-      <!-- There is no need to run tests when generating the report -->
-      <properties>
-        <skipTests>true</skipTests>
-      </properties>
-      <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.revapi</groupId>
-              <artifactId>revapi-maven-plugin</artifactId>
-              <configuration>
-                <analysisConfigurationFiles>
-                  <configurationFile>
-                    <!-- Only filters should be taken into account, not ignores -->
-                    <roots>
-                      <root>filters</root>
-                    </roots>
-                  </configurationFile>
-                </analysisConfigurationFiles>
-              </configuration>
-              <!-- Run only report generation goal -->
-              <executions>
-                <execution>
-                  <!-- Disable check goal -->
-                  <id>check</id>
-                  <phase>none</phase>
-                </execution>
-                <execution>
-                  <!-- Report can be found in ${build.directory}/site/revapi-report.html -->
-                  <id>report</id>
-                  <goals>
-                    <goal>report</goal>
-                  </goals>
-                  <phase>package</phase>
-                </execution>
-              </executions>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-      </build>
-    </profile>
-    <profile>
       <id>java11-specific-config</id>
       <activation>
         <jdk>[11,)</jdk>
@@ -1253,20 +1028,6 @@
                                 Include class files from every module.
                               -->
                               <include name="**/target/classes/**/*.class"/>
-                              <!--
-                                Following classes are excluded as they are present in multiple modules. Usually they
-                                are a product of tests or 3rd party dependencies that got unwrapped in target/classes
-                                folder during the build. These are not a subject of test coverage measurement.
-                              -->
-                              <exclude name="**/target/**/target/classes/**/*.class"/>
-                              <exclude name="**/.errai/**/*.class"/>
-                              <exclude name="**/target/classes/org/jboss/errai/**/*.class"/>
-                              <!--
-                                TODO: there are multiple classes of the same fully qualified name in kie-server modules.
-                                They need to be renamed to enable coverage reporting for them.
-                                -->
-                              <exclude name="**/target/classes/**/org/kie/server/gateway/KieServerGateway.class"/>
-                              <exclude name="**/target/classes/**/org/kie/server/springboot/samples/KieServerApplication.class"/>
                             </fileset>
                           </classfiles>
                           <sourcefiles encoding="UTF-8">
@@ -1327,6 +1088,64 @@
         <!--suppress UnresolvedMavenProperty -->
         <sonar.pullrequest.base>${env.ghprbTargetBranch}</sonar.pullrequest.base>
       </properties>
+    </profile>
+
+    <profile>
+      <id>quickProfile</id>
+      <activation>
+        <property>
+          <name>quickly</name>
+        </property>
+      </activation>
+      <properties>
+        <enforcer.skip>true</enforcer.skip>
+        <revapi.skip>true</revapi.skip>
+        <skipTests>true</skipTests>
+        <skipITs>true</skipITs>
+        <formatter.skip>true</formatter.skip>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>fullProfile</id>
+      <activation>
+        <property>
+          <name>full</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin> <!-- Make sure the build fails-fast on Javadoc issues. -->
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>javadoc-javadoc</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>javadoc-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>analyze-only</id>
+                <goals>
+                  <goal>analyze-only</goal>
+                </goals>
+                <configuration>
+                  <failOnWarning>true</failOnWarning>
+                  <ignoreNonCompile>true</ignoreNonCompile>
+                  <verbose>true</verbose>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 
