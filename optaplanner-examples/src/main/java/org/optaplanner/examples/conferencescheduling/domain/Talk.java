@@ -252,6 +252,10 @@ public class Talk extends AbstractPersistable {
         return timeslot == null ? null : timeslot.getDurationInMinutes();
     }
 
+    public boolean startsAfter(Talk other) {
+        return timeslot != null && other.getTimeslot() != null && timeslot.startsAfter(other.getTimeslot());
+    }
+
     public boolean overlapsTime(Talk other) {
         return timeslot != null && other.getTimeslot() != null && timeslot.overlapsTime(other.getTimeslot());
     }

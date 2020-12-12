@@ -115,36 +115,36 @@ public class OptaPlannerExamplesApp extends JFrame {
     private JPanel createExamplesPanel() {
         JPanel panel = new JPanel(new GridLayout(0, 4, 5, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        /*
-        panel.add(createExampleButton(new NurseRosteringApp()));
-        panel.add(createExampleButton(new TspApp()));
-        panel.add(createExampleButton(new TaskAssigningApp()));
-        panel.add(createExampleButton(new CloudBalancingApp()));
-        */
-        panel.add(createExampleButton(new ConferenceSchedulingApp()));
-        /*
-        panel.add(createExampleButton(new VehicleRoutingApp()));
-        panel.add(createExampleButton(new PatientAdmissionScheduleApp()));
-        panel.add(createExampleButton(new MachineReassignmentApp()));
 
-        panel.add(createExampleButton(new CurriculumCourseApp()));
-        panel.add(createExampleButton(new RockTourApp()));
-        panel.add(createExampleButton(new ProjectJobSchedulingApp()));
-        panel.add(createExampleButton(new NQueensApp()));
-
-        panel.add(createExampleButton(new ExaminationApp()));
-        panel.add(createExampleButton(new CoachShuttleGatheringApp()));
-        panel.add(createExampleButton(new CheapTimeApp()));
-        */
         panel.add(createExampleButton(new MeetingSchedulingApp()));
-        /*
-        panel.add(createExampleButton(new TravelingTournamentApp()));
-        panel.add(createExampleButton(new InvestmentApp()));
-        panel.add(createExampleButton(new DinnerPartyApp()));
+        panel.add(createExampleButton(new ConferenceSchedulingApp()));
 
-        panel.add(createExampleButton(new TennisApp()));
-        panel.add(createExampleButton(new FlightCrewSchedulingApp()));
-        */
+        if (1 == 0) {
+            panel.add(createExampleButton(new NurseRosteringApp()));
+            panel.add(createExampleButton(new TspApp()));
+            panel.add(createExampleButton(new TaskAssigningApp()));
+            panel.add(createExampleButton(new CloudBalancingApp()));
+
+            panel.add(createExampleButton(new VehicleRoutingApp()));
+            panel.add(createExampleButton(new PatientAdmissionScheduleApp()));
+            panel.add(createExampleButton(new MachineReassignmentApp()));
+
+            panel.add(createExampleButton(new CurriculumCourseApp()));
+            panel.add(createExampleButton(new RockTourApp()));
+            panel.add(createExampleButton(new ProjectJobSchedulingApp()));
+            panel.add(createExampleButton(new NQueensApp()));
+
+            panel.add(createExampleButton(new ExaminationApp()));
+            panel.add(createExampleButton(new CoachShuttleGatheringApp()));
+            panel.add(createExampleButton(new CheapTimeApp()));
+
+            panel.add(createExampleButton(new TravelingTournamentApp()));
+            panel.add(createExampleButton(new InvestmentApp()));
+            panel.add(createExampleButton(new DinnerPartyApp()));
+
+            panel.add(createExampleButton(new TennisApp()));
+            panel.add(createExampleButton(new FlightCrewSchedulingApp()));
+        }
         return panel;
     }
 

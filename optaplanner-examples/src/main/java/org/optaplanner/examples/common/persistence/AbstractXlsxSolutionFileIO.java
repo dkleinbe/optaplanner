@@ -553,6 +553,11 @@ public abstract class AbstractXlsxSolutionFileIO<Solution_> implements SolutionF
             }
         }
 
+        protected void setRow(int rownum) {
+            currentRow = currentSheet.getRow(rownum);
+            currentRowNumber = rownum;
+        }
+
         protected void nextRow() {
             currentRowNumber++;
             currentRow = currentSheet.createRow(currentRowNumber);

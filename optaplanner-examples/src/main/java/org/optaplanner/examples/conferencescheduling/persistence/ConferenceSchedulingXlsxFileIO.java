@@ -54,6 +54,7 @@ import static org.optaplanner.examples.conferencescheduling.domain.ConferenceCon
 import static org.optaplanner.examples.conferencescheduling.domain.ConferenceConstraintConfiguration.SPEAKER_UNDESIRED_ROOM_TAGS;
 import static org.optaplanner.examples.conferencescheduling.domain.ConferenceConstraintConfiguration.SPEAKER_UNDESIRED_TIMESLOT_TAGS;
 import static org.optaplanner.examples.conferencescheduling.domain.ConferenceConstraintConfiguration.TALK_MUTUALLY_EXCLUSIVE_TALKS_TAGS;
+import static org.optaplanner.examples.conferencescheduling.domain.ConferenceConstraintConfiguration.TALK_ORDER_TALKS;
 import static org.optaplanner.examples.conferencescheduling.domain.ConferenceConstraintConfiguration.TALK_PREFERRED_ROOM_TAGS;
 import static org.optaplanner.examples.conferencescheduling.domain.ConferenceConstraintConfiguration.TALK_PREFERRED_TIMESLOT_TAGS;
 import static org.optaplanner.examples.conferencescheduling.domain.ConferenceConstraintConfiguration.TALK_PREREQUISITE_TALKS;
@@ -127,6 +128,8 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
             "Penalty per 2 talks with the same speaker and overlapping timeslots, per overlapping minute";
     private static final String TALK_PREREQUISITE_TALKS_DESCRIPTION =
             "Penalty per prerequisite talk of a talk that doesn't end before the second talk starts, per minute of either talk";
+    private static final String TALK_ORDER_TALKS_DESCRIPTION =
+            "Penalty per talk not scheduled according to list order";
     private static final String TALK_MUTUALLY_EXCLUSIVE_TALKS_TAGS_DESCRIPTION =
             "Penalty per common mutually exclusive talks tag of 2 talks with overlapping timeslots, per overlapping minute";
     private static final String CONSECUTIVE_TALKS_PAUSE_DESCRIPTION =
@@ -275,6 +278,8 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
                     SPEAKER_CONFLICT_DESCRIPTION));
             constraintConfiguration.setTalkPrerequisiteTalks(readScoreConstraintLine(TALK_PREREQUISITE_TALKS,
                     TALK_PREREQUISITE_TALKS_DESCRIPTION));
+            constraintConfiguration.setTalkOrderTalks(readScoreConstraintLine(TALK_ORDER_TALKS,
+                    TALK_ORDER_TALKS_DESCRIPTION));
             constraintConfiguration
                     .setTalkMutuallyExclusiveTalksTags(readScoreConstraintLine(TALK_MUTUALLY_EXCLUSIVE_TALKS_TAGS,
                             TALK_MUTUALLY_EXCLUSIVE_TALKS_TAGS_DESCRIPTION));
@@ -921,6 +926,8 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
                     SPEAKER_CONFLICT_DESCRIPTION);
             writeScoreConstraintLine(TALK_PREREQUISITE_TALKS, constraintConfiguration.getTalkPrerequisiteTalks(),
                     TALK_PREREQUISITE_TALKS_DESCRIPTION);
+            writeScoreConstraintLine(TALK_ORDER_TALKS, constraintConfiguration.getTalkOrderTalks(),
+                    TALK_ORDER_TALKS_DESCRIPTION);
             writeScoreConstraintLine(TALK_MUTUALLY_EXCLUSIVE_TALKS_TAGS,
                     constraintConfiguration.getTalkMutuallyExclusiveTalksTags(),
                     TALK_MUTUALLY_EXCLUSIVE_TALKS_TAGS_DESCRIPTION);
@@ -1538,6 +1545,7 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
                         .filter(talk -> talk.getRoom() == room)
                         .collect(toList());
                 writeRoomTalks(timeslotList, room, roomTalkList);
+                currentColumnNumber++;
             }
             currentSheet.autoSizeColumn(0);
             for (int i = 1; i < currentSheet.getRow(0).getPhysicalNumberOfCells(); i++) {
@@ -1611,6 +1619,10 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
                 nextCell().setCellValue(TIME_FORMATTER.format(timeslot.getStartDateTime())
                         + "-" + TIME_FORMATTER.format(timeslot.getEndDateTime()));
                 currentRow.setHeightInPoints(3 * currentSheet.getDefaultRowHeightInPoints());
+                nextRow();
+                nextCell();
+                nextRow();
+                nextCell();
             }
         }
 
@@ -1725,8 +1737,21 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
                 cell.setCellComment(comment);
             }
             cell.setCellValue(talkList.stream().map(stringFunction).collect(joining("\n")));
+            //nextCell(hardPenaltyStyle).setCellValue(talkList.stream().map(stringFunction).collect(joining("\n")));
+            if (!talkList.isEmpty() && isPrintedView) {
+                nextCell(hardPenaltyStyle).setCellValue(talkList.get(0).getSpeakerList().get(0).toString());
+                setRow(++currentRowNumber);
+                currentColumnNumber -= 2;
+                nextCell(hardPenaltyStyle).setCellValue(talkList.get(0).getCode());
+                setRow(++currentRowNumber);
+                
+            } else if (isPrintedView) {
+                currentRowNumber += 2;    
+                setRow(currentRowNumber);    
+            }
             currentRow.setHeightInPoints(
                     Math.max(currentRow.getHeightInPoints(), talkList.size() * currentSheet.getDefaultRowHeightInPoints()));
+
         }
     }
 }

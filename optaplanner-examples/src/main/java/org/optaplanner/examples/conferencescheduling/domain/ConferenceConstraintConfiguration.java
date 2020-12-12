@@ -29,6 +29,7 @@ public class ConferenceConstraintConfiguration extends AbstractPersistable {
     public static final String SPEAKER_UNAVAILABLE_TIMESLOT = "Speaker unavailable timeslot";
     public static final String SPEAKER_CONFLICT = "Speaker conflict";
     public static final String TALK_PREREQUISITE_TALKS = "Talk prerequisite talks";
+    public static final String TALK_ORDER_TALKS = "Talk oder talks";
     public static final String TALK_MUTUALLY_EXCLUSIVE_TALKS_TAGS = "Talk mutually-exclusive-talks tags";
     public static final String CONSECUTIVE_TALKS_PAUSE = "Consecutive talks pause";
     public static final String CROWD_CONTROL = "Crowd control";
@@ -78,6 +79,8 @@ public class ConferenceConstraintConfiguration extends AbstractPersistable {
     private HardMediumSoftScore speakerConflict = HardMediumSoftScore.ofHard(10);
     @ConstraintWeight(TALK_PREREQUISITE_TALKS)
     private HardMediumSoftScore talkPrerequisiteTalks = HardMediumSoftScore.ofHard(10);
+    @ConstraintWeight(TALK_ORDER_TALKS)
+    private HardMediumSoftScore talkOrderTalks = HardMediumSoftScore.ofHard(10);
     @ConstraintWeight(TALK_MUTUALLY_EXCLUSIVE_TALKS_TAGS)
     private HardMediumSoftScore talkMutuallyExclusiveTalksTags = HardMediumSoftScore.ofHard(1);
     @ConstraintWeight(CONSECUTIVE_TALKS_PAUSE)
@@ -204,6 +207,14 @@ public class ConferenceConstraintConfiguration extends AbstractPersistable {
 
     public void setTalkPrerequisiteTalks(HardMediumSoftScore talkPrerequisiteTalks) {
         this.talkPrerequisiteTalks = talkPrerequisiteTalks;
+    }
+
+    public HardMediumSoftScore getTalkOrderTalks() {
+        return talkOrderTalks;
+    }
+
+    public void setTalkOrderTalks(HardMediumSoftScore talkOrderTalks) {
+        this.talkOrderTalks = talkOrderTalks;
     }
 
     public HardMediumSoftScore getTalkMutuallyExclusiveTalksTags() {

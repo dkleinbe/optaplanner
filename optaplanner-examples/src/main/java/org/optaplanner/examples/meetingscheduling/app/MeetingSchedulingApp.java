@@ -30,6 +30,7 @@ public class MeetingSchedulingApp extends CommonApp<MeetingSchedule> {
     public static final String DATA_DIR_NAME = "meetingscheduling";
 
     public static void main(String[] args) {
+        // start here
         prepareSwingEnvironment();
         new MeetingSchedulingApp().init();
     }
