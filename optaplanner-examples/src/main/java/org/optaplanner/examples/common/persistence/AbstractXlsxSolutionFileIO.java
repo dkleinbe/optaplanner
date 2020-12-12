@@ -77,6 +77,7 @@ public abstract class AbstractXlsxSolutionFileIO<Solution_> implements SolutionF
     protected static final XSSFColor SOFT_PENALTY_COLOR = new XSSFColor(TangoColorFactory.ORANGE_1);
     protected static final XSSFColor PLANNING_VARIABLE_COLOR = new XSSFColor(TangoColorFactory.BUTTER_1);
     protected static final XSSFColor REPUBLISHED_COLOR = new XSSFColor(TangoColorFactory.MAGENTA);
+    protected static final XSSFColor TALK_DEFAULT_COLOR = new XSSFColor(TangoColorFactory.ALUMINIUM_1);
 
     @Override
     public String getInputFileExtension() {
@@ -361,6 +362,7 @@ public abstract class AbstractXlsxSolutionFileIO<Solution_> implements SolutionF
         protected XSSFCellStyle wrappedStyle;
         protected XSSFCellStyle planningVariableStyle;
         protected XSSFCellStyle republishedStyle;
+        protected XSSFCellStyle talkDefaultStyle;
 
         protected XSSFSheet currentSheet;
         protected Drawing currentDrawing;
@@ -410,6 +412,7 @@ public abstract class AbstractXlsxSolutionFileIO<Solution_> implements SolutionF
             wrappedStyle = createStyle(null);
             planningVariableStyle = createStyle(PLANNING_VARIABLE_COLOR);
             republishedStyle = createStyle(REPUBLISHED_COLOR);
+            talkDefaultStyle = createStyle(TALK_DEFAULT_COLOR);
         }
 
         protected XSSFCellStyle createStyle(XSSFColor color) {

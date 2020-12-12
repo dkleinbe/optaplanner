@@ -1654,6 +1654,8 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
                 String[] filteredConstraintNames, boolean isPrintedView, Predicate<List<Object>> isValidJustificationList) {
             List<String> filteredConstraintNameList = (filteredConstraintNames == null) ? null
                     : Arrays.asList(filteredConstraintNames);
+            XSSFCellStyle talkStyle = wrappedStyle;
+
             if (talkList == null) {
                 talkList = emptyList();
             }
@@ -1673,8 +1675,14 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
                     .reduce(HardMediumSoftScore::add).orElse(HardMediumSoftScore.ZERO);
             XSSFCell cell;
             if (isPrintedView) {
-                cell = nextCellVertically(talkList.isEmpty() || talkList.get(0).getThemeTrackTagSet().isEmpty() ? wrappedStyle
-                        : themeTrackToStyleMap.get(talkList.get(0).getThemeTrackTagSet().iterator().next()));
+                if (talkList.isEmpty()) {
+                        talkStyle = wrappedStyle;
+                } else if (talkList.get(0).getThemeTrackTagSet().isEmpty()) {
+                        talkStyle = talkDefaultStyle;
+                } else {
+                        talkStyle = themeTrackToStyleMap.get(talkList.get(0).getThemeTrackTagSet().iterator().next());
+                }
+                cell = nextCellVertically(talkStyle);
             } else if (talkList.stream().anyMatch(Talk::isPinnedByUser)) {
                 cell = nextCell(pinnedStyle);
             } else if (!score.isFeasible()) {
@@ -1735,20 +1743,28 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
                 }
                 comment.setString(creationHelper.createRichTextString(commentString.toString()));
                 cell.setCellComment(comment);
-            }
-            cell.setCellValue(talkList.stream().map(stringFunction).collect(joining("\n")));
-            //nextCell(hardPenaltyStyle).setCellValue(talkList.stream().map(stringFunction).collect(joining("\n")));
-            if (!talkList.isEmpty() && isPrintedView) {
-                nextCell(hardPenaltyStyle).setCellValue(talkList.get(0).getSpeakerList().get(0).toString());
-                setRow(++currentRowNumber);
-                currentColumnNumber -= 2;
-                nextCell(hardPenaltyStyle).setCellValue(talkList.get(0).getCode());
-                setRow(++currentRowNumber);
-                
+                // Day view
+                if (isPrintedView) {
+                        // first speaker
+                        nextCell(talkStyle).setCellValue(talkList.get(0).getSpeakerList().get(0).toString());
+                        // next row
+                        setRow(++currentRowNumber);
+                        currentColumnNumber -= 2;
+                        // talk code
+                        nextCell(talkStyle).setCellValue(talkList.get(0).getCode());
+                        // blank for now
+                        nextCell(talkStyle).setCellValue("");
+                        
+                        currentColumnNumber--;
+                        setRow(++currentRowNumber);
+                        
+                }
             } else if (isPrintedView) {
                 currentRowNumber += 2;    
-                setRow(currentRowNumber);    
+                setRow(currentRowNumber);
             }
+            cell.setCellValue(talkList.stream().map(stringFunction).collect(joining("\n")));
+            
             currentRow.setHeightInPoints(
                     Math.max(currentRow.getHeightInPoints(), talkList.size() * currentSheet.getDefaultRowHeightInPoints()));
 
