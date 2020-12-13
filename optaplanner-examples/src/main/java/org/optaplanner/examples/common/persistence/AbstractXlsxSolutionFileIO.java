@@ -28,6 +28,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -399,6 +400,8 @@ public abstract class AbstractXlsxSolutionFileIO<Solution_> implements SolutionF
             Font headerFont = workbook.createFont();
             headerFont.setBold(true);
             headerStyle.setFont(headerFont);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            
             defaultStyle = createStyle(null);
             scoreStyle = createStyle(null);
             scoreStyle.setAlignment(HorizontalAlignment.RIGHT);
@@ -423,6 +426,11 @@ public abstract class AbstractXlsxSolutionFileIO<Solution_> implements SolutionF
             }
             style.setWrapText(true);
             style.setVerticalAlignment(VerticalAlignment.CENTER);
+            style.setBorderBottom(BorderStyle.THIN);
+            style.setBorderTop(BorderStyle.THIN);
+            style.setBorderLeft(BorderStyle.THIN);
+            style.setBorderRight(BorderStyle.THIN);
+
             return style;
         }
 
