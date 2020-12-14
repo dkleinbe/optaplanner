@@ -401,7 +401,7 @@ public abstract class AbstractXlsxSolutionFileIO<Solution_> implements SolutionF
             headerFont.setBold(true);
             headerStyle.setFont(headerFont);
             headerStyle.setAlignment(HorizontalAlignment.CENTER);
-            
+
             defaultStyle = createStyle(null);
             scoreStyle = createStyle(null);
             scoreStyle.setAlignment(HorizontalAlignment.RIGHT);

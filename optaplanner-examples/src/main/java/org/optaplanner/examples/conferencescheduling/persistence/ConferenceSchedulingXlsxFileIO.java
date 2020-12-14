@@ -889,7 +889,7 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
             writeScoreView(justificationList -> justificationList.stream()
                     .filter(o -> o instanceof Talk).map(o -> ((Talk) o).getCode())
                     .collect(joining(", ")));
-            
+
             return workbook;
         }
 
@@ -1543,7 +1543,7 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
                 currentRowNumber = -1;
                 nextCellVertically(headerStyle).setCellValue(room.getName());
                 currentSheet.addMergedRegion(
-                                new CellRangeAddress(currentRowNumber, currentRowNumber, currentColumnNumber, currentColumnNumber + 1));
+                        new CellRangeAddress(currentRowNumber, currentRowNumber, currentColumnNumber, currentColumnNumber + 1));
                 List<Talk> roomTalkList = talkList.stream()
                         .filter(talk -> talk.getRoom() == room)
                         .collect(toList());
@@ -1551,9 +1551,9 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
                 currentColumnNumber++;
             }
             currentSheet.autoSizeColumn(0);
-            for (int i = 1; i < currentSheet.getRow(0).getPhysicalNumberOfCells() * 2 ; i += 2) {
+            for (int i = 1; i < currentSheet.getRow(0).getPhysicalNumberOfCells() * 2; i += 2) {
                 currentSheet.setColumnWidth(i, 20 * 256);
-                currentSheet.setColumnWidth(i+1, 15 * 256);
+                currentSheet.setColumnWidth(i + 1, 15 * 256);
             }
         }
 
@@ -1618,9 +1618,9 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
         }
 
         private void writeTimeslotHoursVertically(List<Timeslot> dayTimeslotList) {
-            
+
             for (Timeslot timeslot : dayTimeslotList) {
-                
+
                 nextRow();
                 int startRow = currentRowNumber;
                 nextCell(headerStyle).setCellValue(TIME_FORMATTER.format(timeslot.getStartDateTime())
@@ -1632,9 +1632,9 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
                 nextCell();
                 currentRow.setHeightInPoints(currentSheet.getDefaultRowHeightInPoints() / 3);
                 currentSheet.addMergedRegion(
-                                    new CellRangeAddress(startRow, currentRowNumber - 1, currentColumnNumber, currentColumnNumber));
+                        new CellRangeAddress(startRow, currentRowNumber - 1, currentColumnNumber, currentColumnNumber));
             }
-            
+
         }
 
         protected void nextTalkListCell(List<Talk> talkList, String[] filteredConstraintNames) {
@@ -1687,11 +1687,11 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
             XSSFCell cell;
             if (isPrintedView) {
                 if (talkList.isEmpty()) {
-                        talkStyle = null;
+                    talkStyle = null;
                 } else if (talkList.get(0).getThemeTrackTagSet().isEmpty()) {
-                        talkStyle = talkDefaultStyle;
+                    talkStyle = talkDefaultStyle;
                 } else {
-                        talkStyle = themeTrackToStyleMap.get(talkList.get(0).getThemeTrackTagSet().iterator().next());
+                    talkStyle = themeTrackToStyleMap.get(talkList.get(0).getThemeTrackTagSet().iterator().next());
                 }
                 cell = nextCellVertically(talkStyle);
             } else if (talkList.stream().anyMatch(Talk::isPinnedByUser)) {
@@ -1756,37 +1756,41 @@ public class ConferenceSchedulingXlsxFileIO extends AbstractXlsxSolutionFileIO<C
                 cell.setCellComment(comment);
                 // Day view
                 if (isPrintedView) {
-                        // talk code
-                        cell.setCellValue(talkList.get(0).getCode());
-                        // first speaker
-                        nextCell(talkStyle).setCellValue(talkList.get(0).getSpeakerList().get(0).toString());
-                        // next row
-                        setRow(++currentRowNumber);
-                        currentColumnNumber -= 2;
-                        // talk title 
-                        nextCell(talkStyle).setCellValue(talkList.get(0).getTitle().toString());
-                        // Attendees excep first speaker
-                        nextCell(talkStyle).setCellValue(talkList.get(0).getSpeakerList().stream().skip(1).map(Speaker::getName).collect(joining("\n")));
-                        
-                        currentColumnNumber--;
-                        setRow(++currentRowNumber);
-                        
+                    // talk code
+                    cell.setCellValue(talkList.get(0).getCode());
+                    // first speaker
+                    nextCell(talkStyle).setCellValue(talkList.get(0).getSpeakerList().get(0).toString());
+                    // next row
+                    setRow(++currentRowNumber);
+                    currentColumnNumber -= 2;
+                    // talk title 
+                    nextCell(talkStyle).setCellValue(talkList.get(0).getTitle().toString());
+                    // Attendees excep first speaker
+                    nextCell(talkStyle).setCellValue(
+                            talkList.get(0).getSpeakerList().stream().skip(1).map(Speaker::getName).collect(joining("\n")));
+
+                    currentColumnNumber--;
+                    setRow(++currentRowNumber);
+
                 } else {
-                        cell.setCellValue(talkList.stream().map(stringFunction).collect(joining("\n")));
-                        currentRow.setHeightInPoints(
-                                Math.max(currentRow.getHeightInPoints(), talkList.size() * currentSheet.getDefaultRowHeightInPoints()));
+                    cell.setCellValue(talkList.stream().map(stringFunction).collect(joining("\n")));
+                    currentRow.setHeightInPoints(
+                            Math.max(currentRow.getHeightInPoints(),
+                                    talkList.size() * currentSheet.getDefaultRowHeightInPoints()));
                 }
             } else if (isPrintedView) {
 
                 currentSheet.addMergedRegion(
-                        new CellRangeAddress(currentRowNumber, currentRowNumber + 1, currentColumnNumber, currentColumnNumber + 1));    
+                        new CellRangeAddress(currentRowNumber, currentRowNumber + 1, currentColumnNumber,
+                                currentColumnNumber + 1));
                 currentSheet.addMergedRegion(
-                                new CellRangeAddress(currentRowNumber + 2, currentRowNumber + 2, currentColumnNumber, currentColumnNumber + 1));
-                currentRowNumber += 2;    
+                        new CellRangeAddress(currentRowNumber + 2, currentRowNumber + 2, currentColumnNumber,
+                                currentColumnNumber + 1));
+                currentRowNumber += 2;
                 setRow(currentRowNumber);
             }
             //cell.setCellValue(talkList.stream().map(stringFunction).collect(joining("\n")));
-            
+
             //currentRow.setHeightInPoints(
             //        Math.max(currentRow.getHeightInPoints(), talkList.size() * currentSheet.getDefaultRowHeightInPoints()));
 

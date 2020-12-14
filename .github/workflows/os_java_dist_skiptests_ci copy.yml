@@ -1,0 +1,50 @@
+# Build distribution whithout tests (Java versions)
+
+name: OptaPlanner Dist SkipTests
+
+on:
+  workflow_dispatch:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  os-java:
+    name: OS x Java
+    strategy:
+      matrix:
+        os: [windows-latest]
+        java: [11]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+      # See https://docs.github.com/en/actions/guides/building-and-testing-java-with-maven#caching-dependencies
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Build with Maven
+        run: mvn -B clean install -DskipTests
+      - name: Upload dist
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-distribution
+          path: D:/a/optaplanner/optaplanner/optaplanner-distribution/target/optaplanner-distribution-8.1.0-SNAPSHOT.zip
+
+  
